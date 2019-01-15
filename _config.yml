@@ -1,7 +1,0 @@
-theme: jekyll-theme-leap-day
-pages:
-- ["index.md", "Homepage"]
-- ["_compile.md", "_compile"]
-- ["_cythonhook.md", "_cythonhook"]
-- ["_database.md", "_database"]
-- ["compilepytyhonjit.md", "compilepythonjit"]
