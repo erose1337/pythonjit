@@ -46,7 +46,7 @@ except ImportError:
     print("Cython not installed")
     print("Run `pip install Cython` or `sudo pip install Cython` to get Cython")
 
-from cythonhook import Import_Hook
+from _cythonhook import Import_Hook
 from _compile import *
 
 class Multiple_Enable_Error(Exception):pass

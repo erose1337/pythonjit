@@ -4,7 +4,7 @@ import hashlib
 import os
 
 import pythonjit._compile
-import pythonjit.database
+import pythonjit._database
 
 __all__ = ["Import_Hook"]
 
@@ -16,7 +16,7 @@ class Import_Hook(object):
         sys.meta_path.insert(0, self)
         self.version = version
         self.verbosity = verbosity
-        self.database = pythonjit.database.Cache_Database(database_name=database_name)
+        self.database = pythonjit._database.Cache_Database(database_name=database_name)
 
     def find_module(self, module_name, path):
         if module_name in sys.builtin_module_names:

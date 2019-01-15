@@ -84,3 +84,7 @@ bin*
 *.exe
 *.out
 *.app
+
+/build
+/dist
+pythonjit.egg-info/
