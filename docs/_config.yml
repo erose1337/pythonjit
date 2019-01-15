@@ -1,4 +1,4 @@
-theme: jekyll-theme-leap-day
+theme: jekyll-theme-minimal
 pages:
 - ["index.md", "Homepage"]
 - ["_compile.md", "_compile"]
