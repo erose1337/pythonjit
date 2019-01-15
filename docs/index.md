@@ -50,3 +50,7 @@ Notes/Known issues/Complications:
 
 - `__file__` may not be available in compiled modules - see [here](https://stackoverflow.com/questions/19225188/what-method-can-i-use-instead-of-file-in-python#comment65304373_19225368) for a workaround
 - Supports python 2 and 3, but the default version is set to 2.
+
+# Read the Docs
+
+More documentation can be found on [readthedocs](https://pythonjit.readthedocs.io/en/latest/)

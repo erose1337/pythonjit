@@ -1,4 +1,4 @@
-# `_cythonhook.py`
+# _cythonhook.py
 ----
 Provides a [module finder](https://www.python.org/dev/peps/pep-0302/) class.
 
