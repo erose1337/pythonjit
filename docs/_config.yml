@@ -1,1 +1,7 @@
 theme: jekyll-theme-leap-day
+pages:
+- ["index.md", "Homepage"]
+- ["docs\_compile.md", "pythonjit", "_compile"]
+- ["docs\_cythonhook.md", "pythonjit", "_cythonhook"]
+- ["docs\_database.md", "pythonjit", "_database"]
+- ["docs\compilepytyhonjit.md", "pythonjit", "compilepythonjit"]
