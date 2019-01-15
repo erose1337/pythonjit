@@ -48,10 +48,8 @@ Temporary Items
 *.pyc
 *.sav
 *.log
-*.yml
 *.wav
 *.db
-*.yml
 *.pyo
 
 # Compiled Object files
