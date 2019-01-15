@@ -1,4 +1,4 @@
-# `_database.py`
+# _database.py
 ----
 Provides a Object oriented interface for working with sqlite3 databases.
 

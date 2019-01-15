@@ -1,5 +1,4 @@
-----
-title: `_compile.py`
+# _compile.py
 ----
 
 Handles the process of using cython and gcc to cross compile .py files into .pyx, then into .c, then into .so/.pyd/.exe.
