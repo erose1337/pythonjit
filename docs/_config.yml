@@ -1,4 +1,5 @@
 theme: jekyll-theme-minimal
+show_downloads: true
 pages:
 - ["index.md", "Homepage"]
 - ["compile.md", "compile"]
