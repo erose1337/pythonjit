@@ -1,7 +1,7 @@
 theme: jekyll-theme-minimal
 pages:
 - ["index.md", "Homepage"]
-- ["compile.md", "_compile"]
-- ["cythonhook.md", "_cythonhook"]
-- ["database.md", "_database"]
+- ["compile.md", "compile"]
+- ["cythonhook.md", "cythonhook"]
+- ["database.md", "database"]
 - ["compilepytyhonjit.md", "compilepythonjit"]
