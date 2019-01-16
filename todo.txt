@@ -1,6 +1,8 @@
 to do:
 ----
 add compilation to .exe
+improve caching mechanism to not get confused if compiled files are deleted
+improve auto-documentation (pride.components.package)
 
 changes
 -----

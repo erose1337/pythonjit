@@ -27,11 +27,13 @@ class Not_Enabled_Error(Exception):
     """ Raised when pythonjit.disable is called when no Import_Hook exists. """
 
 _STORAGE = []
-def enable(verbosity=0):
-    """ usage: enable(verbosity=0) -> None
+def enable(version='2', verbosity=0):
+    """ usage: enable(version='2', verbosity=0) -> None
 
         Enables automatic cross compilation of imported python modules via Cython.
         This is the primary part of the API offered by the pythonjit package.
+
+        version indicates the python version, and should be set to either '2' or '3'. Default is '2'.
 
         verbosity is an optional keyword argument that can be set to:
 
@@ -45,7 +47,7 @@ def enable(verbosity=0):
     if any(_STORAGE):
         raise Multiple_Enable_Error("pythonjit.enable called when pythonjit already enabled")
     else:
-        _STORAGE.append(_cythonhook.Import_Hook(verbosity=verbosity))
+        _STORAGE.append(_cythonhook.Import_Hook(version=version, verbosity=verbosity))
 
 def disable():
     """ usage: disable() -> None
