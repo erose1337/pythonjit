@@ -1,5 +1,14 @@
 pythonjit
 =========
+Automatically cross compiles .py files to .so (or .pyd) using Cython and import hooks.
+
+How to use:
+
+    import pythonjit
+    pythonjit.enable()
+
+And imports will automatically be cythonized.
+
 
 Import_Hook
 --------------

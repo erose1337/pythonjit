@@ -2,13 +2,18 @@
 
 Running `python compilepythonjit.py` will cross compile `__init__.py`, `_compile.py`, `_cythonhook.py`, `_database.py`, and `compilepythonjit.py`.
 
-The python version defaults to python 2."""
+The python version defaults to python 2.
+
+verbosity defaults to 2, which will display what/when files are being cross compiled."""
 
 import os
 
 import _compile
 
 def main(version=2, verbosity=2):
+    """ usage: main(version=2, verbosity=2) = >
+
+        Cross compiles pythonjits source files to compiled binaries. """
     this_file = __file__
     directory = os.path.split(this_file)[0]
     cythonhook_file = os.path.join(directory, "cythonhook.py")

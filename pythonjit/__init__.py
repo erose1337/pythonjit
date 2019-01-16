@@ -1,55 +1,11 @@
-"""  Automatically cross compiles .py files to .so (or .pyd) using Cython and import hooks.
+"""Automatically cross compiles .py files to .so (or .pyd) using Cython and import hooks.
 
-    How to use:
+How to use:
 
-        import pythonjit
-        pythonjit.enable()
+    import pythonjit
+    pythonjit.enable()
 
-    And imports will automatically be cythonized.
-
-    For more performance benefits, use the decorators provided by cython to statically type variables and return types.
-    The relevant decorators are:
-
-        - @cython.cfunc (declares cdef function)
-        - @cython.ccall (declares cpdef function)
-        - @cython.returns (declare return type)
-        - @cython.locals (declare local variable types)
-        - @cython.cclass (declare cdef class)
-        - @cython.inline (equivalent to C inline keyword)
-        - @cython.final (makes subclassing impossible, enabling optimizations)
-
-    Types are also part of the cython module:
-
-        - cython.int
-        - cython.longlong
-        - cython.struct
-        - cython.union
-        - cython.typedef
-        - cython.cast
-        - etc
-
-    For more information on cython types and decorators, see the [cython docs](http://docs.cython.org/en/latest/src/tutorial/pure.html#static-typing)
-
-    Cython is more stringent than the python interpreter when it comes to catching errors in code.
-    E.g. It will complain about NameErrors that occur in unreachable code, which the python interpreter will not do.
-    A larger/complex project may have issues to fix before Cython can compile it.
-
-    Cross compilation can take some time, especially for larger projects.
-    A caching mechanism is used to compensate for this, so the first run will be slower than future runs.
-
-# Requirements
-
-- `cython` must be installed
-- `gcc` must be available (Windows users should install [MinGW](http://mingw.org) to gain access to `gcc`)
-
-# Notes/Known issues/Complications:
-
-- `__file__` may not be available in compiled modules - see[here](https://stackoverflow.com/questions/19225188/what-method-can-i-use-instead-of-file-in-python#comment65304373_19225368) for a workaround
-- Supports python 2 and 3, but the default version is set to 2.
-
-# Read the Docs
-
-More documentation can be found on [readthedocs](https://pythonjit.readthedocs.io/en/latest/)"""
+And imports will automatically be cythonized."""
 
 try:
     import cython
@@ -57,17 +13,26 @@ except ImportError:
     print("Cython not installed")
     print("Run `pip install Cython` or `sudo pip install Cython` to get Cython")
 
-from _cythonhook import Import_Hook
-from _compile import *
+import _cythonhook
+import _compile
+import compilepythonjit # necessary for auto-documentation
 
-class Multiple_Enable_Error(Exception):pass
-class Not_Enabled_Error(Exception): pass
+SHARED_LIBRARY = _compile.SHARED_LIBRARY
+EXECUTABLE = _compile.EXECUTABLE
+
+class Multiple_Enable_Error(Exception):
+    """ Raised when pythonjit.enable is called when an Import_Hook already exists. """
+
+class Not_Enabled_Error(Exception):
+    """ Raised when pythonjit.disable is called when no Import_Hook exists. """
 
 _STORAGE = []
 def enable(verbosity=0):
     """ usage: enable(verbosity=0) -> None
 
         Enables automatic cross compilation of imported python modules via Cython.
+        This is the primary part of the API offered by the pythonjit package.
+
         verbosity is an optional keyword argument that can be set to:
 
             - 0 for no output
@@ -80,7 +45,7 @@ def enable(verbosity=0):
     if any(_STORAGE):
         raise Multiple_Enable_Error("pythonjit.enable called when pythonjit already enabled")
     else:
-        _STORAGE.append(Import_Hook(verbosity=verbosity))
+        _STORAGE.append(_cythonhook.Import_Hook(verbosity=verbosity))
 
 def disable():
     """ usage: disable() -> None
@@ -95,5 +60,4 @@ def disable():
     else:
         del _STORAGE[0]
 
-def cross_compile(file_list, output_names, mode=SHARED_LIBRARY, version='2', verbosity=0):
-    return _compile.cross_compile(file_list, output_names, mode, version, verbosity)
+cross_compile = _compile.cross_compile

@@ -11,6 +11,7 @@ import os
 import atexit
 
 def create_assignment_string(items):
+    """ Helper function used by Database objects """
     keys = items.keys()
     values = [items[key] for key in keys]
     return ", ".join("{} = ?".format(key) for key in keys), values
@@ -32,9 +33,8 @@ def create_where_string(where):
 
 class Database(object):
     """ An object with methods for dispatching sqlite3 commands.
-        Database objects may be simpler and safer then directly
-        working with sqlite3 queries. Note that database methods
-        do not commit automatically."""
+        Database objects may be simpler and safer then directly working with sqlite3 queries.
+        Note that database methods commit automatically when the auto_commit attribute is set to True (defaults to True)."""
     IntegrityError = sqlite3.IntegrityError
 
     defaults = {"database_name" : '', "connection" : None,
@@ -248,12 +248,14 @@ class Database(object):
 
 
 class Cache_Database(Database):
+    """ Database with the table structure expected by Import_Hook. """
 
     database_structure = {"Source_Cache" : ("module_name TEXT PRIMARY_KEY UNIQUE", "source_digest BLOB")}
     primary_key = {"Source_Cache" : "module_name"}
 
 
 def test_db():
+    """ Unit test for Database objects """
     class Test_Database(Database):
 
         database_structure = {"Test" : ("test_name TEXT PRIMARY_KEY UNIQUE", "test_data BLOB")}

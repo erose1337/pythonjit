@@ -12,34 +12,44 @@ After that, it's job is done; It passes the responsibility to find and load modu
 Import_Hook
 --------------
 
-	 This object is automatically instantiated and inserted into
-        sys.meta_path as the first entry when instantiated. 
+This object is automatically instantiated and inserted into `sys.meta_path` as the first entry when instantiated.
+
+When a module is imported, this object is tasked with finding the module. This object will find the source code for the module, and cross compile it if necessary.
+
+This object does not participate in the module loading part of the import process. After the source file is cross compiled, it is left to the default/other finders/loaders to load. The default loader will opt to load a compiled .so/.pyd over a .py file if it is available
 
 
-Method resolution order: 
+Method resolution order:
 
 	(<class 'pythonjit._cythonhook.Import_Hook'>, <type 'object'>)
 
 - **find_module**(self, module_name, path):
 
-				No documentation available
+		Finds the specified module and cross compiles it if necessary.
+
+        Uses a database to determine when source files change to determine whether the binaries should be re-compiled.
 
 
 - **cross_compile**(self, _path):
 
-				No documentation available
+		Cross compiles the python file indicated by _path into a binary.
 
 
 - **update_db**(self, module_name, source_digest, old_digest):
 
-				No documentation available
+		Updates database with the hash of the source code
 
 
 - **obtain_source_digest**(self, _path):
 
-				No documentation available
+	   Returns a hash of the file indicated by _path
 
 
 - **find_source_file**(self, _path):
 
-				No documentation available
+		Finds a source file for the file indacted by _path.
+
+        _path may be to a .pyc/.so/.pyd or to a .py file.
+
+        In the former case, the .py file is located and returned if available.
+        Otherwise, simply returns the same _path that was supplied.
