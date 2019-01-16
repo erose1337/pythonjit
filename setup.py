@@ -1,7 +1,7 @@
 from setuptools import setup
 
 options = {"name" : "pythonjit",
-           "version" : "1.0.0",
+           "version" : "1.1.0",
            "description" : "Automatically cross compiles python to C",
            #"long_description" : '',
            #"url" : "",
