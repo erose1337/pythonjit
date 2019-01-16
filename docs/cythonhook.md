@@ -42,7 +42,7 @@ Method resolution order:
 
 - **obtain_source_digest**(self, _path):
 
-	   Returns a hash of the file indicated by _path
+        Returns a hash of the file indicated by _path
 
 
 - **find_source_file**(self, _path):

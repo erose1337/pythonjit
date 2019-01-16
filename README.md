@@ -1,4 +1,4 @@
-pythonjit
+[pythonjit](https://erose1337.github.io/pythonjit/)
 ==============
 
 Automatically cross compiles .py files to .so (or .pyd) using Cython and import hooks.
@@ -51,6 +51,7 @@ A caching mechanism is used to compensate for this, so the first run will be slo
 
 - `__file__` may not be available in compiled modules - see[here](https://stackoverflow.com/questions/19225188/what-method-can-i-use-instead-of-file-in-python#comment65304373_19225368) for a workaround
 - Supports python 2 and 3, but the default version is set to 2.
+- If compiled files are deleted, then the .db will become out of sync and must be deleted (or source files modified) before compilation can happen.
 
 # Read the Docs
 

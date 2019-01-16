@@ -78,7 +78,7 @@ def ccompile(file_list, output_names, mode=SHARED_LIBRARY, verbosity=0,
         raise ValueError("file_list ({}) and output_names ({}) must be same length".format(len(file_list), len(output_names)))
 
     compile_mode = (mode + " -shared") if mode in ('pyd', 'so') else mode
-    compile_command = COMPILE_COMMAND + compile_mode
+    compile_command = compile_command + compile_mode
 
     compiled = []
     for filename, output_filename in zip(file_list, output_names):
@@ -112,5 +112,5 @@ def cross_compile(file_list, output_names, mode=SHARED_LIBRARY, version='2', ver
         example: cross_compile(["packagehead.py", "library.py"], [None, None],
                                mode=pythonjit.SHARED_LIBRARY, version='3', verbosity=2)"""
     pyx_files = convert_to_pyx(file_list)
-    c_files = convert_to_c(pyx_files)
+    c_files = convert_to_c(pyx_files, mode, version, verbosity)
     return ccompile(c_files, output_names, mode, verbosity)

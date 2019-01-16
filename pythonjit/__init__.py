@@ -60,4 +60,17 @@ def disable():
     else:
         del _STORAGE[0]
 
-cross_compile = _compile.cross_compile
+def cross_compile(file_list, output_names, mode=SHARED_LIBRARY, version='2', verbosity=0):
+    """ usage: cross_compile(file_list, output_names, mode=_compile.SHARED_LIBRARY,
+                             version='2', verbosity=0) => list of compiled files
+
+        Cross compiles the .py files specified in file_list to compiled binaries.
+        file_list is a list of strings indicating the files to be converted, with the .py file extension
+        output_names is a list of equivalent length of file_list, which specifies how the corresponding output files should be named. This argument is not optional, but None can be passed as entries to use the same names as those in the file_list (with a new file extension).
+        mode is optional, and should be set to one of pythonjit._compile.SHARED_LIBRARY or pythonjit._compile.EXECUTABLE. Shared library type (.so, .pyd) is automatically determined by platform. Default is SHARED_LIBRARY
+        version is optional, and should be a string set to either '2' or '3' to instruct cython that the correct python version is 2 or 3. Default is '2'
+        verbosity is optional, and should be set to either 0 or 2; 0 is quiet mode with no output, while 2 provides step-by-step indication of the compilation process. verbosity=1 is reserved for the Import_Hook object. Default is 0
+
+        example: cross_compile(["packagehead.py", "library.py"], [None, None],
+                               mode=pythonjit.SHARED_LIBRARY, version='3', verbosity=2)"""
+    return _compile.cross_compile(file_list, output_names, mode, version, verbosity)
