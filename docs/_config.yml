@@ -2,6 +2,7 @@ theme: jekyll-theme-minimal
 show_downloads: true
 pages:
 - ["index.md", "Homepage"]
+- ["pythonjit.md", "pythonjit"]
 - ["compile.md", "compile"]
 - ["cythonhook.md", "cythonhook"]
 - ["database.md", "database"]

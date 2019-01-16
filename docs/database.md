@@ -1,7 +1,7 @@
 pythonjit._database
 ==============
 
- Provides a Object oriented interface for working with sqlite3 databases.
+Provides a Object oriented interface for working with sqlite3 databases.
 
 pythonjit uses a database to keep track of when source code changes, so that it knows when to recompile the static libraries.
 
@@ -15,7 +15,7 @@ Cache_Database
 	No documentation available
 
 
-Instance defaults: 
+Instance defaults:
 
 	{'auto_commit': True,
 	 'connection': None,
@@ -25,7 +25,7 @@ Instance defaults:
 	 'return_cursor': False,
 	 'text_factory': <type 'str'>}
 
-Method resolution order: 
+Method resolution order:
 
 	(<class 'pythonjit._database.Cache_Database'>,
 	 <class 'pythonjit._database.Database'>,
@@ -40,7 +40,7 @@ Database
         do not commit automatically.
 
 
-Instance defaults: 
+Instance defaults:
 
 	{'auto_commit': True,
 	 'connection': None,
@@ -50,7 +50,7 @@ Instance defaults:
 	 'return_cursor': False,
 	 'text_factory': <type 'str'>}
 
-Method resolution order: 
+Method resolution order:
 
 	(<class 'pythonjit._database.Database'>, <type 'object'>)
 
@@ -62,7 +62,7 @@ Method resolution order:
 - 	No documentation available
 
 
-Method resolution order: 
+Method resolution order:
 
 	(<class 'sqlite3.IntegrityError'>,
 	 <class 'sqlite3.DatabaseError'>,
@@ -95,7 +95,7 @@ Method resolution order:
 		 Retrieves information from the named database table.
             retrieve_fileds is an iterable containing string names of
             the fields that should be returned. The where argument
-            is a dictionary of field name:value pairs. 
+            is a dictionary of field name:value pairs.
 
 
 - **get_last_auto_increment_value**(self, table_name):
@@ -108,7 +108,7 @@ Method resolution order:
 		 Alters the specified table. Available modes are
             "ADD" and "RENAME", while argument should be
             an additional field definition or new name. Added
-            columns are appended. 
+            columns are appended.
 
 
 - **open_database**(self, database_name, text_factory):
@@ -116,7 +116,7 @@ Method resolution order:
 		 Opens database_name and obtain a sqlite3 connection and cursor.
             Database objects call this implicitly when initializing.
             Database objects wrap the connection and store the cursor
-            as Database.cursor. 
+            as Database.cursor.
 
 
 - **table_info**(self, table_name):
@@ -131,7 +131,7 @@ Method resolution order:
 		 Creates a table in the underlying sqlite3 database.
             fields is an iterable containing field names. The if_not_exists
             flag, which defaults to True, will only create the table
-            if it does not exist already. 
+            if it does not exist already.
 
 
 - **insert_into**(self, table_name, values, columns, batch):
@@ -159,7 +159,7 @@ create_where_string
 
 **create_where_string**(where):
 
-		 Helper function used by Database objects 
+		 Helper function used by Database objects
 
 
 test_db
