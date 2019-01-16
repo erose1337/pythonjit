@@ -24,8 +24,11 @@ class Import_Hook(object):
 
     def __init__(self, version=2, verbosity=0, database_name="cache.db"):
         sys.meta_path.insert(0, self)
+        if str(version) not in ('2', '3'):
+            raise ValueError("Invalid version {}".format(version))
         self.version = version
         self.verbosity = verbosity
+        self.library_type = pythonjit._compile.SHARED_LIBRARY
         self.database = pythonjit._database.Cache_Database(database_name=database_name)
 
     def find_module(self, module_name, path):
@@ -45,6 +48,12 @@ class Import_Hook(object):
             else:
                 if "/usr/lib" in _path: # possibly improper solution to compiling builtins
                     continue
+
+                compiled_file = self.find_compiled_file(_path)
+                if compiled_file is not None:
+                    compiled_library_exists = True
+                else:
+                    compiled_library_exists = False
 
                 _path = self.find_source_file(_path)
                 if _path is None:
@@ -66,6 +75,8 @@ class Import_Hook(object):
                         print("Old digest not found")
                     try_compiling = True
                     source_digest = self.obtain_source_digest(_path)
+                if not compiled_library_exists:
+                    try_compiling = True
 
                 if count == end_of_modules and try_compiling:
                     if self.verbosity:
@@ -106,6 +117,19 @@ class Import_Hook(object):
                 file_name = '.'.join((file_name, "py"))
             if not os.path.isfile(file_name):
                 return None # can't find source, can't cross compile
+            _path = file_name
+        return _path
+
+    def find_compiled_file(self, _path):
+        """ Finds a compiled file for the file indicated by _path. """
+        file_name, extension = os.path.splitext(_path)
+        if extension != self.library_type[1:]: # slice off period
+            if not extension: # (sub)package, look for the __init__.so file
+                file_name = os.path.join(file_name, "__init__.{}".format(self.library_type))
+            else:
+                file_name = '.'.join((file_name, self.library_type))
+            if not os.path.isfile(file_name):
+                return None # can't find it
             _path = file_name
         return _path
 
