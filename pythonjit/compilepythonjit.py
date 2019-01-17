@@ -16,9 +16,9 @@ def main(version=2, verbosity=2):
         Cross compiles pythonjits source files to compiled binaries. """
     this_file = __file__
     directory = os.path.split(this_file)[0]
-    cythonhook_file = os.path.join(directory, "cythonhook.py")
+    cythonhook_file = os.path.join(directory, "_cythonhook.py")
     _compile_file = os.path.join(directory, "_compile.py")
-    _database_file = os.path.join(directory, "_dabase.py")
+    _database_file = os.path.join(directory, "_database.py")
     init_file = os.path.join(directory, "__init__.py")
     file_list = [init_file, _compile_file, cythonhook_file,
                  _database_file, this_file]

@@ -10,6 +10,9 @@ import contextlib
 import os
 import atexit
 
+class ArgumentError(Exception):
+    """ Raised when a necessary argument was not supplied to a method call. """
+
 def create_assignment_string(items):
     """ Helper function used by Database objects """
     keys = items.keys()

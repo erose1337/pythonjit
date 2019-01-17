@@ -11,8 +11,18 @@ __all__ = ("SHARED_LIBRARY", "EXECUTABLE", "cross_compile")
 
 SHARED_LIBRARY = "pyd" if "win" in platform else "so"
 EXECUTABLE = "exe"
-COMPILE_COMMAND = "gcc {} -IC:\Python27\include -LC:\Python27\libs\ -lpython27 -o {}." if "win" in platform else "gcc {} -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing -I/usr/include/python2.7 -o {}."
-#gcc converted.c -IC:\Python27\include -LC:\Python27\libs\ -lpython27 -o converted.exe
+COMPILE_COMMAND = "gcc {} -IC:\Python27\include -LC:\Python27\libs\ -lpython27 -o {}." if "win" in platform else "gcc {} -pthread -fPIC -fwrapv -O2 -fno-strict-aliasing -I /usr/include/python2.7 -lpython2.7 -lpthread -lm -lutil -ldl -o {}."
+                  #gcc {} -pthread -fPIC -fwrapv -O2 -fno-strict-aliasing -I /usr/include/python2.7 -o {} -lpython2.7 -lpthread -lm -lutil -ldl
+                  #gcc {} -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing -I/usr/include/python2.7 -o {}."
+class GCC_Compilation_Error(Exception):
+    """ Raised when gcc fails to compile a .c file. """
+
+class Cython_Compile_Error(Exception):
+    """ Raised when cython fails to compile a .pyx file. """
+
+class Pyx_Conversion_Error(Exception):
+    """ Raised when convert_to_pyx is supplied a non-.py file. """
+
 
 def convert_to_pyx(file_list):
     """ usage: convert_to_pyx(file_list) => list of .pyx file names
@@ -28,7 +38,7 @@ def convert_to_pyx(file_list):
         if extension == ".py":
             pyx_filename = filename + 'x'
         else:
-            raise ValueError("Cannot convert non-.py file to .pyx '{}' ext {}".format(filename, extension))
+            raise Pyx_Conversion_Error("Cannot convert non-.py file to .pyx '{}' ext {}".format(filename, extension))
         with open(filename, 'r') as py_file, open(pyx_filename, 'w') as pyx_file:
             pyx_file.truncate(0)
             pyx_file.write(py_file.read())
@@ -54,7 +64,7 @@ def convert_to_c(file_names, mode, version='2', verbosity=0):
         assert filename[-3:] == 'pyx'
         os.remove(filename)
         if error_code > 0:
-            raise ValueError("Failed to process '{}'".format(filename))
+            raise Cython_Compile_Error("Failed to process '{}'".format(filename))
         else:
             c_file =  os.path.splitext(filename)[0] + '.c'
             c_files.append(c_file)
@@ -91,16 +101,16 @@ def ccompile(file_list, output_names, mode=SHARED_LIBRARY, verbosity=0,
         assert filename[-1] == 'c'
         os.remove(filename)
         if error_code > 0:
-            raise ValueError("Failed to compile '{}'".format(filename))
+            raise GCC_Compilation_Error("Failed to compile '{}'".format(filename))
         else:
             if verbosity > 1:
                 print "{} was compiled successfully".format(filename)
-            compiled.append(output_filename)
+            compiled.append("{}.{}".format(output_filename, mode))
     return compiled
 
 def cross_compile(file_list, output_names, mode=SHARED_LIBRARY, version='2', verbosity=0):
     """ usage: cross_compile(file_list, output_names, mode=_compile.SHARED_LIBRARY,
-                             version='2', verbosity=0) => list of compiled files
+                             version='2', verbosity=0) => list of compiled file names
 
         Cross compiles the .py files specified in file_list to compiled binaries.
         file_list is a list of strings indicating the files to be converted, with the .py file extension
@@ -109,8 +119,12 @@ def cross_compile(file_list, output_names, mode=SHARED_LIBRARY, version='2', ver
         version is optional, and should be a string set to either '2' or '3' to instruct cython that the correct python version is 2 or 3. Default is '2'
         verbosity is optional, and should be set to either 0 or 2; 0 is quiet mode with no output, while 2 provides step-by-step indication of the compilation process. verbosity=1 is reserved for the Import_Hook object. Default is 0
 
-        example: cross_compile(["packagehead.py", "library.py"], [None, None],
-                               mode=pythonjit.SHARED_LIBRARY, version='3', verbosity=2)"""
+        examples:
+
+            cross_compile(["packagehead.py", "library.py"], [None, None],
+                          mode=pythonjit.SHARED_LIBRARY, version='3', verbosity=2)
+
+            cross_compile(["main.py"], ["myapp"], mode=pythonjit.EXECUTABLE)"""
     pyx_files = convert_to_pyx(file_list)
     c_files = convert_to_c(pyx_files, mode, version, verbosity)
     return ccompile(c_files, output_names, mode, verbosity)

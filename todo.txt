@@ -1,6 +1,5 @@
 to do:
 ----
-add compilation to .exe
 improve auto-documentation (pride.components.package)
 
 changes
