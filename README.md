@@ -13,24 +13,24 @@ And imports will automatically be cythonized.
 For more performance benefits, use the decorators provided by cython to statically type variables and return types.
 The relevant decorators are:
 
-- @cython.cfunc (declares cdef function)
-- @cython.ccall (declares cpdef function)
-- @cython.returns (declare return type)
-- @cython.declare (declare variables and their types)
+- `@cython.cfunc` (declares cdef function)
+- `@cython.ccall` (declares cpdef function)
+- `@cython.returns` (declare return type)
+- `@cython.declare` (declare variables and their types)
     - Can also use annotations in python 3 to declare cython types
-- @cython.locals (declare multiple argument and local variable types for a function)
-- @cython.cclass (declare cdef class)
-- @cython.inline (equivalent to C inline keyword)
-- @cython.final (makes subclassing impossible, enabling optimizations)
+- `@cython.locals` (declare multiple argument and local variable types for a function)
+- `@cython.cclass` (declare cdef class)
+- `@cython.inline` (equivalent to C inline keyword)
+- `@cython.final` (makes subclassing impossible, enabling optimizations)
 
 Types are also part of the cython module:
 
-- cython.int
-- cython.longlong
-- cython.struct
-- cython.union
-- cython.typedef
-- cython.cast
+- `cython.int`
+- `cython.longlong`
+- `cython.struct`
+- `cython.union`
+- `cython.typedef`
+- `cython.cast`
 - etc
 
 For more information on cython types and decorators, see the [cython docs](http://docs.cython.org/en/latest/src/tutorial/pure.html#static-typing)
@@ -48,11 +48,11 @@ A caching mechanism is used to compensate for this, so the first run will be slo
 
 - `cython` must be installed
 - `gcc` must be available (Windows users should install [MinGW](http://mingw.org) to gain access to `gcc`)
+    - Alternatively, you can use the `compile_command` argument to specify a different compiler
 
 # Notes/Known issues/Complications:
 
 - `__file__` may not be available in compiled modules - see [here](https://stackoverflow.com/questions/19225188/what-method-can-i-use-instead-of-file-in-python#comment65304373_19225368) for a workaround
-- Supports python 2 and 3, but the default version is set to 2.
 
 # Read the Docs
 

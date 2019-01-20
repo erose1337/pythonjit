@@ -1,6 +1,6 @@
 """ Provides a [module finder](https://www.python.org/dev/peps/pep-0302/) class.
 
-This is not a public facing module; Users of pythonjit should use `pythonjit.enable` to automatically compile imported modules, or `pythonjit.cross_compile` as a utility to compile modules without importing them in python (e.g. in order to distribute them).
+This is not a public facing module; Users of pythonjit should use `pythonjit.enable` to automatically compile imported modules, or use the `compile.py` program or `pythonjit.cross_compile` function to compile modules without importing them in python (e.g. in order to distribute them).
 
 The `Import_Hook` class inserts itself into `sys.meta_path` when instantiated. When `import` statements are used, `Import_Hook` has the opportunity to locate the file to be imported. It uses this opportunity to locate the .py source code file for the module (if available), and uses `_compile.cross_compile` to compile it to a static library.
 
@@ -16,7 +16,7 @@ import pythonjit._database
 __all__ = ["Import_Hook"]
 
 class Import_Hook(object):
-    """ This object is automatically instantiated and inserted into `sys.meta_path` as the first entry when instantiated.
+    """ This object is instantiated when pythonjit.enable is called, and inserts itself into `sys.meta_path` as the first entry when instantiated.
 
         When a module is imported, this object is tasked with finding the module. This object will find the source code for the module, and cross compile it if necessary.
 

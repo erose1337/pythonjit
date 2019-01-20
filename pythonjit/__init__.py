@@ -6,6 +6,7 @@ How to use:
     pythonjit.enable()
 
 And imports will automatically be cythonized."""
+import sys
 
 try:
     import cython
@@ -64,6 +65,7 @@ def disable():
     if not any(_STORAGE):
         raise Not_Enabled_Error("pythonjit.disable called when pythonjit not enabled")
     else:
+        sys.meta_path.remove(_STORAGE[0])
         del _STORAGE[0]
 
 def cross_compile(file_list, output_names, mode=SHARED_LIBRARY, version='2', verbosity=0,

@@ -42,7 +42,6 @@ class Database(object):
 
     defaults = {"database_name" : '', "connection" : None,
                 "cursor" : None, "text_factory" : str, "auto_commit" : True,
-                "detect_types_flags" : sqlite3.PARSE_DECLTYPES,
                 "return_cursor" : False}
 
     database_structure = {}

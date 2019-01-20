@@ -22,9 +22,13 @@ def main(version=2, verbosity=2):
     init_file = os.path.join(directory, "__init__.py")
     compile_file = os.path.join(directory, "compile.py")
     file_list = [init_file, _compile_file, cythonhook_file,
-                 _database_file, this_file, compile_file]
+                 _database_file]
     _compile.cross_compile(file_list, [None] * len(file_list),
-                           version=2, verbosity=verbosity)
+                           version=version, verbosity=verbosity)
+
+    file_list = [this_file, compile_file]
+    _compile.cross_compile(file_list, [None] * len(file_list), mode=_compile.EXECUTABLE,
+                           version=version, verbosity=verbosity)
 
 if __name__ == "__main__":
     main()

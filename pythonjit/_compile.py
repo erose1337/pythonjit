@@ -63,6 +63,8 @@ def convert_to_c(file_names, mode, version='2', verbosity=0):
         assert filename[-3:] == 'pyx'
         os.remove(filename)
         if error_code > 0:
+            c_file = os.path.splitext(filename)[0] + ".c"
+            os.remove(c_file)
             raise Cython_Conversion_Error("Failed to process '{}'".format(filename))
         else:
             c_file =  os.path.splitext(filename)[0] + '.c'
@@ -100,7 +102,7 @@ def ccompile(file_list, output_names, mode=SHARED_LIBRARY, verbosity=0,
         assert filename[-1] == 'c'
         os.remove(filename)
         if error_code > 0:
-            raise ompilation_Error("Failed to compile '{}'".format(filename))
+            raise Compilation_Error("Failed to compile '{}'".format(filename))
         else:
             if verbosity > 1:
                 print "{} was compiled successfully".format(filename)
