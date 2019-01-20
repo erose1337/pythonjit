@@ -1,10 +1,20 @@
 to do:
 ----
 improve auto-documentation (pride.components.package)
+create __file__ information source
+auto-import pythonjit when live interpreter session is started
 
 changes
 -----
-
+add compile.py as a command line program to compile python modules
+added compile.py to compilepythonjit module
+added example.py
+fixed bug not raising ImportError when cython is not installed
+added Not_Compiled_Error
+added compile_command argument to `cross_compile` function
+changed GCC_Compilation_Error to Compilation_Error
+changed Cython_Compile_Error to Cython_Conversion_Error
+fixed bug in convert_to_c (changed is "exe" to == "exe")
 
 notes
 ----

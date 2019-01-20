@@ -11,13 +11,12 @@ __all__ = ("SHARED_LIBRARY", "EXECUTABLE", "cross_compile")
 
 SHARED_LIBRARY = "pyd" if "win" in platform else "so"
 EXECUTABLE = "exe"
-COMPILE_COMMAND = "gcc {} -IC:\Python27\include -LC:\Python27\libs\ -lpython27 -o {}." if "win" in platform else "gcc {} -pthread -fPIC -fwrapv -O2 -fno-strict-aliasing -I /usr/include/python2.7 -lpython2.7 -lpthread -lm -lutil -ldl -o {}."
-                  #gcc {} -pthread -fPIC -fwrapv -O2 -fno-strict-aliasing -I /usr/include/python2.7 -o {} -lpython2.7 -lpthread -lm -lutil -ldl
-                  #gcc {} -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing -I/usr/include/python2.7 -o {}."
-class GCC_Compilation_Error(Exception):
-    """ Raised when gcc fails to compile a .c file. """
+COMPILE_COMMAND = "gcc {} -IC:\Python27\include -LC:\Python27\libs\ -lpython27 -o {}." if "win" in platform else "gcc {} -Wall -pthread -fPIC -fwrapv -O2 -fno-strict-aliasing -I /usr/include/python2.7 -lpython2.7 -lpthread -lm -lutil -ldl -o {}."
 
-class Cython_Compile_Error(Exception):
+class Compilation_Error(Exception):
+    """ Raised when a compiler (e.g. gcc) fails to compile a .c file. """
+
+class Cython_Conversion_Error(Exception):
     """ Raised when cython fails to compile a .pyx file. """
 
 class Pyx_Conversion_Error(Exception):
@@ -54,7 +53,7 @@ def convert_to_c(file_names, mode, version='2', verbosity=0):
         mode should be SHARED_LIBRARY or EXECUTABLE
         version should be either '2' or '3' for python 2 or 3. Defaults to '2'.
         verbosity should be 0 or 2. 0 is silent, 2 prints filenames as they are converted. Defaults to 0."""
-    cross_compile = "cython {} --embed" if mode is 'exe' else "cython {}"
+    cross_compile = "cython {} --embed" if mode == 'exe' else "cython {}"
     cross_compile += " -{}".format(version)
     c_files = []
 
@@ -64,7 +63,7 @@ def convert_to_c(file_names, mode, version='2', verbosity=0):
         assert filename[-3:] == 'pyx'
         os.remove(filename)
         if error_code > 0:
-            raise Cython_Compile_Error("Failed to process '{}'".format(filename))
+            raise Cython_Conversion_Error("Failed to process '{}'".format(filename))
         else:
             c_file =  os.path.splitext(filename)[0] + '.c'
             c_files.append(c_file)
@@ -101,16 +100,18 @@ def ccompile(file_list, output_names, mode=SHARED_LIBRARY, verbosity=0,
         assert filename[-1] == 'c'
         os.remove(filename)
         if error_code > 0:
-            raise GCC_Compilation_Error("Failed to compile '{}'".format(filename))
+            raise ompilation_Error("Failed to compile '{}'".format(filename))
         else:
             if verbosity > 1:
                 print "{} was compiled successfully".format(filename)
             compiled.append("{}.{}".format(output_filename, mode))
     return compiled
 
-def cross_compile(file_list, output_names, mode=SHARED_LIBRARY, version='2', verbosity=0):
+def cross_compile(file_list, output_names, mode=SHARED_LIBRARY, version='2', verbosity=0,
+                  compile_command=COMPILE_COMMAND):
     """ usage: cross_compile(file_list, output_names, mode=_compile.SHARED_LIBRARY,
-                             version='2', verbosity=0) => list of compiled file names
+                             version='2', verbosity=0
+                             compile_command=_compile.COMPILE_COMMAND) => list of compiled file names
 
         Cross compiles the .py files specified in file_list to compiled binaries.
         file_list is a list of strings indicating the files to be converted, with the .py file extension
@@ -118,6 +119,7 @@ def cross_compile(file_list, output_names, mode=SHARED_LIBRARY, version='2', ver
         mode is optional, and should be set to one of pythonjit._compile.SHARED_LIBRARY or pythonjit._compile.EXECUTABLE. Shared library type (.so, .pyd) is automatically determined by platform. Default is SHARED_LIBRARY
         version is optional, and should be a string set to either '2' or '3' to instruct cython that the correct python version is 2 or 3. Default is '2'
         verbosity is optional, and should be set to either 0 or 2; 0 is quiet mode with no output, while 2 provides step-by-step indication of the compilation process. verbosity=1 is reserved for the Import_Hook object. Default is 0
+        compile_command is optional, and should be set to a string with 2 format/insertion points that runs a compiler (e.g. gcc) with any relevant flags/switches. The first insertion should be for the file name (something.c), and the second insertion point should be for the executable/library name, *without* the file extension (that will be inserted automatically)
 
         examples:
 
