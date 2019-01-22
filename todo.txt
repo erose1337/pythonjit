@@ -1,16 +1,15 @@
 to do:
 ----
 improve auto-documentation (pride.components.package)
-create __file__ information source
 auto-import pythonjit when live interpreter session is started
+type inference?
+static typing tutorial
 
 changes
 -----
-removed unused attribute from _database objects
-adjusted doc strings
-fixed bug where Import_Hook would not be removed from sys.meta_path when disable was called
-fixed bug in compilepythonjit where version ended up hardcoded to 2
-changed compilepythonjit to compile compilepythonjit and compile as executables
+added `get_file_path` function to `pythonjit` module
+changed name of db table from "Source_Cache" to "Source_Info"
+added conditional doc string in compile.py, due to __doc__ being unassignable when compiled
 
 notes
 ----
@@ -18,3 +17,5 @@ notes
 
 known issues
 -----
+cannot compile files in /usr folder (e.g. those that come with python) unless running as root, which doesn't seem to be a good idea
+    - currently declines to try compiling anything in /usr, even if you are root

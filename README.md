@@ -14,7 +14,7 @@ For more performance benefits, use the decorators provided by cython to statical
 The relevant decorators are:
 
 - `@cython.cfunc` (declares cdef function)
-- `@cython.ccall` (declares cpdef function)
+- `@cython.ccall` (declares cpdef function, callable from interpreted python)
 - `@cython.returns` (declare return type)
 - `@cython.declare` (declare variables and their types)
     - Can also use annotations in python 3 to declare cython types

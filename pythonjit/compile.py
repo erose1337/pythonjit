@@ -4,6 +4,8 @@ import argparse
 
 import pythonjit
 
+import cython
+
 parser = argparse.ArgumentParser()
 parser.add_argument("source_filename", help="The source file to be compiled")
 parser.add_argument("-o", "--output_filename", help="The name of the compiled executable (without the .exe/.so/.pyd file extension")
@@ -13,6 +15,7 @@ parser.add_argument("-p", "--python_version", help="Sets the python version to 2
 parser.add_argument("-c", "--compile_command", help="Specifies the command used to execute the compiler; See `cross_compile` docs")
 
 def main():
+    """Command line program, `main` accepts no arguments. See `python compile.py -h for usage documentation"""
     args = parser.parse_args()
     source_files = list(item.strip() for item in args.source_filename.split(','))
     if args.output_filename:
@@ -27,7 +30,8 @@ def main():
     verbosity = args.verbosity or 0
     compile_command = args.compile_command or pythonjit._compile.COMPILE_COMMAND
     pythonjit.cross_compile(source_files, output_files, mode, version, verbosity, compile_command)
-main.__doc__ = parser.format_help()
+if not cython.compiled:
+     main.__doc__ += '\n' + parser.format_help() #doesn't work when compiled
 
 if __name__ == "__main__":
     main()

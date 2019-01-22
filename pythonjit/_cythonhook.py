@@ -59,7 +59,7 @@ class Import_Hook(object):
                 if _path is None:
                     continue
 
-                old_digest = self.database.query("Source_Cache", retrieve_fields=("source_digest", ),
+                old_digest = self.database.query("Source_Info", retrieve_fields=("source_digest", ),
                                                  where={"module_name" : module_name})
                 try_compiling = False
                 if old_digest:
@@ -82,7 +82,7 @@ class Import_Hook(object):
                     if self.verbosity:
                         print("Cross compiling: {}".format(module_name))
                     self.cross_compile(_path)
-                    self.update_db(module_name, source_digest, old_digest)
+                    self.update_db(module_name, source_digest, old_digest, _path)
 
     def obtain_source_digest(self, _path):
         """ Returns a hash of the file indicated by _path """
@@ -90,17 +90,20 @@ class Import_Hook(object):
             source = py_file.read()
         return hashlib.sha256(source).hexdigest()
 
-    def update_db(self, module_name, source_digest, old_digest):
+    def update_db(self, module_name, source_digest, old_digest, path):
         """ Updates database with the hash of the source code """
         if old_digest:
             if self.verbosity > 1:
                 print("Updating table with source_digest for {}".format(module_name))
-            self.database.update_table("Source_Cache", where={"module_name" : module_name},
-                                       arguments={"source_digest" : source_digest})
+            self.database.update_table("Source_Info", where={"module_name" : module_name},
+                                       arguments={"source_digest" : source_digest,
+                                                  "source_file" : path})
         else:
             if self.verbosity > 1:
                 print("Inserting digest into db for {}".format(module_name))
-            self.database.insert_into("Source_Cache", values=(module_name, source_digest))
+            self.database.insert_into("Source_Info", values=(module_name,
+                                                             source_digest,
+                                                             path))
 
     def find_source_file(self, _path):
         """ Finds a source file for the file indacted by _path.

@@ -252,8 +252,10 @@ class Database(object):
 class Cache_Database(Database):
     """ Database with the table structure expected by Import_Hook. """
 
-    database_structure = {"Source_Cache" : ("module_name TEXT PRIMARY_KEY UNIQUE", "source_digest BLOB")}
-    primary_key = {"Source_Cache" : "module_name"}
+    database_structure = {"Source_Info" : ("module_name TEXT PRIMARY_KEY UNIQUE",
+                                            "source_digest BLOB",
+                                            "source_file TEXT")}
+    primary_key = {"Source_Info" : "module_name"}
 
 
 def test_db():

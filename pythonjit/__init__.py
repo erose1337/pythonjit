@@ -26,7 +26,8 @@ class Multiple_Enable_Error(Exception):
     """ Raised when pythonjit.enable is called when an Import_Hook already exists. """
 
 class Not_Enabled_Error(Exception):
-    """ Raised when pythonjit.disable is called when no Import_Hook exists. """
+    """ Raised when pythonjit.disable is called when no Import_Hook exists.
+        Also raised when functionality that requires Import_Hook is used when it does not exist. """
 
 class Not_Compiled_Error(Exception):
     """ Raised when code that should be compiled is found to be interpreted instead. """
@@ -89,6 +90,21 @@ def cross_compile(file_list, output_names, mode=SHARED_LIBRARY, version='2', ver
 
             cross_compile(["main.py"], ["myapp"], mode=pythonjit.EXECUTABLE)"""
     return _compile.cross_compile(file_list, output_names, mode, version, verbosity, compile_command)
+
+def get_file_path(module_name):
+    """ usage: get_file_path(module_name) => file_path
+
+    Facilitates access to __file__ information, which may be otherwise unavailable in compiled modules.
+
+    module_name is a string of the modules name, e.g. as acquired by __name__.
+    file_path is a string.
+
+    Raises Not_Enabled_Error if pythonjit.enable has not been called yet."""
+    if not _STORAGE:
+        raise Not_Enabled_Error("Must enable pythonjit before db can be accessed")
+    db = _STORAGE[0].database
+    return db.query("Source_Info", retrieve_fields=("source_file", ),
+                                   where={"module_name" : module_name}) or ''
 
 # it would be nice to alias the requisite functionality from cython so that cython does not need to be imported
 # would need to also alias cythons types to use these, otherwise you'd have to import cython anyways
