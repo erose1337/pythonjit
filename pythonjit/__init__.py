@@ -7,6 +7,7 @@ How to use:
 
 And imports will automatically be cythonized."""
 import sys
+import os
 
 try:
     import cython
@@ -17,10 +18,12 @@ except ImportError:
 
 import _cythonhook
 import _compile
+import _localimporter
 import compilepythonjit # necessary for auto-documentation
 
 SHARED_LIBRARY = _compile.SHARED_LIBRARY
 EXECUTABLE = _compile.EXECUTABLE
+CODE_DIR = os.path.join(os.path.expanduser("~"), "pythonjit", "compiled")
 
 class Multiple_Enable_Error(Exception):
     """ Raised when pythonjit.enable is called when an Import_Hook already exists. """
@@ -33,7 +36,7 @@ class Not_Compiled_Error(Exception):
     """ Raised when code that should be compiled is found to be interpreted instead. """
 
 _STORAGE = []
-def enable(verbosity=0, version='2'):
+def enable(verbosity=0, version='2', db_name=_cythonhook.DEFAULT_DB, code_dir=CODE_DIR):
     """ usage: enable(verbosity=0, version='2') -> None
 
         Enables automatic cross compilation of imported python modules via Cython.
@@ -53,7 +56,9 @@ def enable(verbosity=0, version='2'):
     if any(_STORAGE):
         raise Multiple_Enable_Error("pythonjit.enable called when pythonjit already enabled")
     else:
-        _STORAGE.append(_cythonhook.Import_Hook(version=version, verbosity=verbosity))
+        _STORAGE.append(_cythonhook.Import_Hook(version=version, verbosity=verbosity,
+                                                database_name=db_name, code_dir=code_dir))
+        _STORAGE.append(_localimporter.Local_Importer(code_dir))
 
 def disable():
     """ usage: disable() -> None
@@ -66,8 +71,9 @@ def disable():
     if not any(_STORAGE):
         raise Not_Enabled_Error("pythonjit.disable called when pythonjit not enabled")
     else:
-        sys.meta_path.remove(_STORAGE[0])
-        del _STORAGE[0]
+        for item in _STORAGE:
+            sys.meta_path.remove(item)
+        del _STORAGE[:]
 
 def cross_compile(file_list, output_names, mode=SHARED_LIBRARY, version='2', verbosity=0,
                   compile_command=_compile.COMPILE_COMMAND):

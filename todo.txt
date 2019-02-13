@@ -7,9 +7,12 @@ static typing tutorial
 
 changes
 -----
-added `get_file_path` function to `pythonjit` module
-changed name of db table from "Source_Cache" to "Source_Info"
-added conditional doc string in compile.py, due to __doc__ being unassignable when compiled
+fixed database attribute assignment bug
+changed default database location
+changed location of compiled .so files and intermediate temp files
+    - fixes inability to compile built-in and installed modules
+added `db_name` and `code_dir` arguments to `pythonjit.enable`
+added _localimporter 
 
 notes
 ----
@@ -17,5 +20,3 @@ notes
 
 known issues
 -----
-cannot compile files in /usr folder (e.g. those that come with python) unless running as root, which doesn't seem to be a good idea
-    - currently declines to try compiling anything in /usr, even if you are root

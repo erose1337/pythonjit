@@ -5,13 +5,13 @@ While this module does expose one function that is intended to be available to e
 This module is not part of the exposed API, and users should access the `cross_compile` functionality through `pythonjit`."""
 import os
 from sys import platform
-import subprocess
+import tempfile
 
 __all__ = ("SHARED_LIBRARY", "EXECUTABLE", "cross_compile")
 
 SHARED_LIBRARY = "pyd" if "win" in platform else "so"
 EXECUTABLE = "exe"
-COMPILE_COMMAND = "gcc {} -IC:\Python27\include -LC:\Python27\libs\ -lpython27 -o {}." if "win" in platform else "gcc {} -Wall -pthread -fPIC -fwrapv -O2 -fno-strict-aliasing -I /usr/include/python2.7 -lpython2.7 -lpthread -lm -lutil -ldl -o {}."
+COMPILE_COMMAND = "gcc {} -IC:\Python27\include -LC:\Python27\libs\ -lpython27 -o {}." if "win" in platform else "gcc {} -pthread -fPIC -fwrapv -O2 -fno-strict-aliasing -I /usr/include/python2.7 -lpython2.7 -lpthread -lm -lutil -ldl -o {}."
 
 class Compilation_Error(Exception):
     """ Raised when a compiler (e.g. gcc) fails to compile a .c file. """
@@ -30,22 +30,19 @@ def convert_to_pyx(file_list):
         file_list should be a list of strings of python source files.
 
         The "conversion" process consists of making a copy of the supplied file with a .pyx file extension."""
-    new_names = []
-
+    pyx_files = []
     for filename in file_list:
         extension = os.path.splitext(filename)[-1]
-        if extension == ".py":
-            pyx_filename = filename + 'x'
-        else:
+        if extension != ".py":
             raise Pyx_Conversion_Error("Cannot convert non-.py file to .pyx '{}' ext {}".format(filename, extension))
-        with open(filename, 'r') as py_file, open(pyx_filename, 'w') as pyx_file:
-            pyx_file.truncate(0)
+        with open(filename, 'r') as py_file:#, open(pyx_filename, 'w') as pyx_file:
+            pyx_file = tempfile.NamedTemporaryFile(suffix=".pyx")
             pyx_file.write(py_file.read())
             pyx_file.flush()
-            new_names.append(pyx_filename)
-    return new_names
+            pyx_files.append((filename, pyx_file))
+    return pyx_files
 
-def convert_to_c(file_names, mode, version='2', verbosity=0):
+def convert_to_c(pyx_files, mode, version='2', verbosity=0):
     """ usage: convert_to_c(file_names, mode, version='2', verbosity=0) => list of .c file names
 
         Converts .pyx files to .c files via cython.
@@ -57,20 +54,21 @@ def convert_to_c(file_names, mode, version='2', verbosity=0):
     cross_compile += " -{}".format(version)
     c_files = []
 
-    for filename in file_names:
-        command = cross_compile.format(filename)
+    for py_filename, pyx_file in pyx_files:
+        filename = pyx_file.name
+        command = cross_compile.format(pyx_file.name)
         error_code = os.system(command)
         assert filename[-3:] == 'pyx'
-        os.remove(filename)
+        pyx_file.close() # deletes temporary file
         if error_code > 0:
             c_file = os.path.splitext(filename)[0] + ".c"
             os.remove(c_file)
-            raise Cython_Conversion_Error("Failed to process '{}'".format(filename))
+            raise Cython_Conversion_Error("Failed to process '{}'".format(py_filename))
         else:
             c_file =  os.path.splitext(filename)[0] + '.c'
-            c_files.append(c_file)
+            c_files.append((py_filename, c_file))
             if verbosity > 1:
-                print "{} cross compiled successfully to {}".format(filename, c_file)
+                print "{} cross compiled successfully to {}".format(py_filename, c_file)
     return c_files
 
 def ccompile(file_list, output_names, mode=SHARED_LIBRARY, verbosity=0,
@@ -92,9 +90,10 @@ def ccompile(file_list, output_names, mode=SHARED_LIBRARY, verbosity=0,
     compile_command = compile_command + compile_mode
 
     compiled = []
-    for filename, output_filename in zip(file_list, output_names):
+    for filenames, output_filename in zip(file_list, output_names):
+        py_filename, filename = filenames
         if verbosity > 1:
-            print("Compiling: {}".format(filename))
+            print("Compiling: {} ({})".format(filename, py_filename))
         if output_filename is None:
             output_filename = os.path.splitext(filename)[0]
 
@@ -102,10 +101,10 @@ def ccompile(file_list, output_names, mode=SHARED_LIBRARY, verbosity=0,
         assert filename[-1] == 'c'
         os.remove(filename)
         if error_code > 0:
-            raise Compilation_Error("Failed to compile '{}'".format(filename))
+            raise Compilation_Error("Failed to compile '{}'".format(py_filename))
         else:
             if verbosity > 1:
-                print "{} was compiled successfully".format(filename)
+                print "{} was compiled successfully".format(py_filename)
             compiled.append("{}.{}".format(output_filename, mode))
     return compiled
 

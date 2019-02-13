@@ -4,32 +4,37 @@ This is not a public facing module; Users of pythonjit should use `pythonjit.ena
 
 The `Import_Hook` class inserts itself into `sys.meta_path` when instantiated. When `import` statements are used, `Import_Hook` has the opportunity to locate the file to be imported. It uses this opportunity to locate the .py source code file for the module (if available), and uses `_compile.cross_compile` to compile it to a static library.
 
-After that, it's job is done; It passes the responsibility to find and load modules to the next or default finder/loader. That finder/loader will find the compiled version of the imported module, which will be used instead of the source code version of the module."""
+After that, its job is done; It passes the responsibility to find and load modules to the next or default finder/loader. That finder/loader will find the compiled version of the imported module, which will be used instead of the source code version of the module."""
 import imp
 import sys
 import hashlib
 import os
+import errno
 
 import pythonjit._compile
 import pythonjit._database
 
-__all__ = ["Import_Hook"]
+__all__ = ["Import_Hook", "DEFAULT_DB"]
+
+DEFAULT_DB =  os.path.join(os.path.expanduser("~"), "pythonjit", "cache.db")
+CODE_DIR = os.path.join(os.path.expanduser("~"), "pythonjit", "compiled")
 
 class Import_Hook(object):
     """ This object is instantiated when pythonjit.enable is called, and inserts itself into `sys.meta_path` as the first entry when instantiated.
 
         When a module is imported, this object is tasked with finding the module. This object will find the source code for the module, and cross compile it if necessary.
 
-        This object does not participate in the module loading part of the import process. After the source file is cross compiled, it is left to the default/other finders/loaders to load. The default loader will opt to load a compiled .so/.pyd over a .py file if it is available"""
+        This object does not participate in the module loading part of the import process. After the source file is cross compiled, it is left to other finders/loaders to load. The default loader will opt to load a compiled .so/.pyd over a .py file if it is available"""
 
-    def __init__(self, version=2, verbosity=0, database_name="cache.db"):
-        sys.meta_path.insert(0, self)
+    def __init__(self, version=2, verbosity=0, database_name=DEFAULT_DB, code_dir=CODE_DIR):
         if str(version) not in ('2', '3'):
             raise ValueError("Invalid version {}".format(version))
+        sys.meta_path.insert(0, self)
         self.version = version
         self.verbosity = verbosity
         self.library_type = pythonjit._compile.SHARED_LIBRARY
         self.database = pythonjit._database.Cache_Database(database_name=database_name)
+        self.code_dir = code_dir
 
     def find_module(self, module_name, path):
         """ Finds the specified module and cross compiles it if necessary.
@@ -46,10 +51,7 @@ class Import_Hook(object):
             except ImportError:
                 pass
             else:
-                if "/usr/lib" in _path: # possibly improper solution to compiling builtins
-                    continue
-
-                compiled_file = self.find_compiled_file(_path)
+                compiled_file = self.find_compiled_file(_path, module)
                 if compiled_file is not None:
                     compiled_library_exists = True
                 else:
@@ -62,6 +64,8 @@ class Import_Hook(object):
                 old_digest = self.database.query("Source_Info", retrieve_fields=("source_digest", ),
                                                  where={"module_name" : module_name})
                 try_compiling = False
+                if self.verbosity > 1:
+                    print("Checking digest for {}".format(module_name))
                 if old_digest:
                     source_digest = self.obtain_source_digest(_path)
                     if source_digest != old_digest:
@@ -76,6 +80,8 @@ class Import_Hook(object):
                     try_compiling = True
                     source_digest = self.obtain_source_digest(_path)
                 if not compiled_library_exists:
+                    if self.verbosity > 1:
+                        print("Compiled version does not exist yet")
                     try_compiling = True
 
                 if count == end_of_modules and try_compiling:
@@ -123,23 +129,32 @@ class Import_Hook(object):
             _path = file_name
         return _path
 
-    def find_compiled_file(self, _path):
+    def find_compiled_file(self, _path, module):
         """ Finds a compiled file for the file indicated by _path. """
-        file_name, extension = os.path.splitext(_path)
-        if extension != self.library_type[1:]: # slice off period
-            if not extension: # (sub)package, look for the __init__.so file
-                file_name = os.path.join(file_name, "__init__.{}".format(self.library_type))
+        __path = os.path.splitext(os.path.sep.join((self.code_dir, _path[1:])))[0]
+        try:
+            _file, filepath, _ = imp.find_module(module, [__path])
+        except ImportError:
+            if os.path.split(__path)[-1] == module:
+                filepath = os.path.join(__path, "__init__.so")
             else:
-                file_name = '.'.join((file_name, self.library_type))
-            if not os.path.isfile(file_name):
-                return None # can't find it
-            _path = file_name
-        return _path
+                return None
+        else:
+            _file.close()
+        return filepath
 
     def cross_compile(self, _path):
         """ Cross compiles the python file indicated by _path into a binary. """
+        assert _path[0] == os.path.sep
+        output_path = os.path.splitext(os.path.sep.join((self.code_dir, _path[1:])))[0]
+        directory = os.path.join(*os.path.split(output_path)[:-1])
         try:
-            compiled = pythonjit._compile.cross_compile([_path], output_names=[None],
+            os.makedirs(directory)
+        except OSError as error:
+            if error.errno != errno.EEXIST or not os.path.isdir(directory):
+                raise
+        try:
+            compiled = pythonjit._compile.cross_compile([_path], output_names=[output_path],
                                                         version=self.version,
                                                         verbosity=self.verbosity)
         except IOError as exception:

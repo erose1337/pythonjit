@@ -1,0 +1,5 @@
+Minor: Following keyword arguments for pythonjit.enable were added:
+    code_dir: directory str
+    db_name: filename str
+Change type: minor
+Changed version from 1.0.0-beta to 1.0.0-beta.1

@@ -49,14 +49,20 @@ class Database(object):
 
     def __init__(self, **kwargs):
         super(Database, self).__init__()
-        kwargs.update(self.defaults)
-        for attribute, value in kwargs.items():
+        attributes = self.defaults.copy()
+        attributes.update(kwargs)
+        for attribute, value in attributes.items():
             setattr(self, attribute, value)
 
         if not self.database_name:
-            directory = os.path.split(__file__)[0]
+            directory = os.path.join(os.path.split(__file__)[0])
             db_file = os.path.join(directory, "cache.db")
             self.database_name = os.path.join(db_file)
+        else:
+            directory = os.path.join(*os.path.split(self.database_name)[:-1])
+
+        if not os.path.isdir(directory):
+            os.mkdir(directory)
         self.connection, self.cursor = self.open_database(self.database_name,
                                                           self.text_factory)
         atexit.register(self.delete)
