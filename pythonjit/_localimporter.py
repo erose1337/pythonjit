@@ -19,11 +19,14 @@ class Local_Importer(object):
             return self
 
     def load_module(self, module_name):
-        while imp.lock_held():
-            pass
-        imp.acquire_lock()
+        thread_count = threading.active_count()
+        if thread_count != 1:
+            while imp.lock_held():
+                pass
+            imp.acquire_lock()
         module = sys.modules.setdefault(module_name, imp.new_module(module_name))
-        imp.release_lock() # not sure when to release; the following doesn't use shared resources (e.g. sys.modules) other than the module itself
+        if thread_count != 1:
+            imp.release_lock() # not sure when to release; the following doesn't use shared resources (e.g. sys.modules) other than the module itself
         source, filepath = self.source.pop(module_name)
         module_code = compile(source, module_name, "exec")
         is_package = True if len(module_name.split('.')) > 1 else False # not sure, but seems accurate

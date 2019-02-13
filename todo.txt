@@ -8,6 +8,7 @@ static typing tutorial
 changes
 -----
 minor changes to README
+changed code in _localimporter that deals with the import lock
 
 notes
 ----
