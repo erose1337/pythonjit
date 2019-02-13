@@ -7,12 +7,7 @@ static typing tutorial
 
 changes
 -----
-fixed database attribute assignment bug
-changed default database location
-changed location of compiled .so files and intermediate temp files
-    - fixes inability to compile built-in and installed modules
-added `db_name` and `code_dir` arguments to `pythonjit.enable`
-added _localimporter 
+minor changes to README
 
 notes
 ----
