@@ -5,10 +5,11 @@ auto-import pythonjit when live interpreter session is started
 type inference?
 static typing tutorial
 replace Cythons keyword strings such as "const" in normal python source code to be non-keywords
+add parallelism to compilestdlib to speed up process
 
 changes
 -----
-added compiltestdlib
+
 
 notes
 ----

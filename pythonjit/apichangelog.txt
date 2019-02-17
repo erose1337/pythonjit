@@ -1,1 +1,4 @@
-Set version to 1.0.0-beta (from 0.4.0)
+Minor: Following keyword arguments for pythonjit.enable were added:
+    ignore_compilation_failure: bool
+Change type: minor
+Changed version from 1.0.0-beta.1 to 1.0.0-beta.2
