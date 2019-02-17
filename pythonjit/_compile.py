@@ -49,7 +49,7 @@ def convert_to_c(pyx_files, mode, version='2', verbosity=0):
         file_names should be a list of strings of .pyx file names
         mode should be SHARED_LIBRARY or EXECUTABLE
         version should be either '2' or '3' for python 2 or 3. Defaults to '2'.
-        verbosity should be 0 or 2. 0 is silent, 2 prints filenames as they are converted. Defaults to 0."""
+        verbosity should be 0 or 2. 0 is silent, 2 prints filenames as they are converted and any compilation errors. Defaults to 0."""
     cross_compile = "cython {} --embed" if mode == 'exe' else "cython {}"
     cross_compile += " -{}".format(version)
     c_files = []
@@ -57,7 +57,14 @@ def convert_to_c(pyx_files, mode, version='2', verbosity=0):
     for py_filename, pyx_file in pyx_files:
         filename = pyx_file.name
         command = cross_compile.format(pyx_file.name)
+
+        if verbosity < 2:
+            temp = tempfile.NamedTemporaryFile()
+            command += " 2> {}".format(temp.name)
         error_code = os.system(command)
+        if verbosity < 2:
+            temp.close()
+
         assert filename[-3:] == 'pyx'
         pyx_file.close() # deletes temporary file
         if error_code > 0:

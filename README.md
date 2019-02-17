@@ -60,6 +60,13 @@ A caching mechanism is used to compensate for this, so the first run will be slo
 
 - `__file__` may not be available in compiled modules
     - You can use `pythonjit.get_file_path` to locate the source file for a module
+- Inserting items into `globals()` instead of declaring them via `name = ...` will result in Cython thinking the names are undeclared
+    - This is a problem for the built-in `ssl` module
+- `const`, `short`, `long`, `signed`, `double`, `float`, etc, are keywords that Cython uses. Variables cannot be named these or the Cython conversion process will not work
+    - This is a problem for:
+        - `argparse`
+        - `unittest.util`
+- Old versions of python did not define True and False as keywords. Cython will not allow these values to be assigned to.
 
 # Read the Docs
 

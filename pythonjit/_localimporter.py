@@ -1,5 +1,6 @@
 import sys
 import imp
+import threading
 
 class Local_Importer(object):
 

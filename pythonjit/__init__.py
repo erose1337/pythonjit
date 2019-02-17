@@ -36,8 +36,10 @@ class Not_Compiled_Error(Exception):
     """ Raised when code that should be compiled is found to be interpreted instead. """
 
 _STORAGE = []
-def enable(verbosity=0, version='2', db_name=_cythonhook.DEFAULT_DB, code_dir=CODE_DIR):
-    """ usage: enable(verbosity=0, version='2') -> None
+def enable(verbosity=0, version='2', db_name=_cythonhook.DEFAULT_DB,
+           code_dir=CODE_DIR, ignore_compilation_failure=False):
+    """ usage: enable(verbosity=0, version='2', db_name=_cythonhook.DEFAULT_DB,
+                      code_dir=CODE_DIR, ignore_compilation_failure=False) -> None
 
         Enables automatic cross compilation of imported python modules via Cython.
         This is the primary part of the API offered by the pythonjit package.
@@ -49,6 +51,9 @@ def enable(verbosity=0, version='2', db_name=_cythonhook.DEFAULT_DB, code_dir=CO
             - 2 for the progress of the compilation process to be output, plus the output from 1
 
         version indicates the python version, and should be set to either '2' or '3'. Default is '2'.
+        db_name is a filename string for the .db file that tracks when source code changes
+        code_dir is a directory string that indicates where to cache compiled files
+        ignore_compilation_failure is a boolean that indicates whether to use a regular interpreted python module if a module cannot be compiled
 
         The Import_Hook created by calling enable() will live in the _STORAGE list in the pythonjit module.
 
@@ -57,7 +62,8 @@ def enable(verbosity=0, version='2', db_name=_cythonhook.DEFAULT_DB, code_dir=CO
         raise Multiple_Enable_Error("pythonjit.enable called when pythonjit already enabled")
     else:
         _STORAGE.append(_cythonhook.Import_Hook(version=version, verbosity=verbosity,
-                                                database_name=db_name, code_dir=code_dir))
+                                                database_name=db_name, code_dir=code_dir,
+                                                ignore_compilation_failure=ignore_compilation_failure))
         _STORAGE.append(_localimporter.Local_Importer(code_dir))
 
 def disable():

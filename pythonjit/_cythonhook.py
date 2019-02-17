@@ -26,7 +26,8 @@ class Import_Hook(object):
 
         This object does not participate in the module loading part of the import process. After the source file is cross compiled, it is left to other finders/loaders to load. The default loader will opt to load a compiled .so/.pyd over a .py file if it is available"""
 
-    def __init__(self, version=2, verbosity=0, database_name=DEFAULT_DB, code_dir=CODE_DIR):
+    def __init__(self, version=2, verbosity=0, database_name=DEFAULT_DB,
+                 code_dir=CODE_DIR, ignore_compilation_failure=False):
         if str(version) not in ('2', '3'):
             raise ValueError("Invalid version {}".format(version))
         sys.meta_path.insert(0, self)
@@ -35,14 +36,12 @@ class Import_Hook(object):
         self.library_type = pythonjit._compile.SHARED_LIBRARY
         self.database = pythonjit._database.Cache_Database(database_name=database_name)
         self.code_dir = code_dir
+        self.ignore_compilation_failure = ignore_compilation_failure
 
     def find_module(self, module_name, path):
         """ Finds the specified module and cross compiles it if necessary.
 
             Uses a database to determine when source files change to determine whether the binaries should be re-compiled. """
-        if module_name in sys.builtin_module_names:
-            return None
-
         modules = module_name.split('.')
         end_of_modules = len(modules) - 1
         for count, module in enumerate(modules):
@@ -157,7 +156,6 @@ class Import_Hook(object):
             compiled = pythonjit._compile.cross_compile([_path], output_names=[output_path],
                                                         version=self.version,
                                                         verbosity=self.verbosity)
-        except IOError as exception:
-            if exception.errno != 13: # 13 = permission denied, probably in /usr/lib
-                raise           # what about modules that have been `pip install`-ed?
-                                # to do: Make sure only built-in modules don't get compiled
+        except pythonjit._compile.Cython_Conversion_Error:
+            if not self.ignore_compilation_failure:
+                raise
